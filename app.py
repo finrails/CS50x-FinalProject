@@ -14,7 +14,7 @@ app.secret_key = "super_secret_key"
 
 with app.app_context():
     try:
-        from models import User 
+        from models import User, Task
     except ImportError as error:
         print(error)
 
