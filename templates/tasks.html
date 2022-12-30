@@ -12,25 +12,27 @@
 						<button type="submit" class="btn w-100 btn-primary d-flex align-items-center justify-content-center">New Task<i data-feather="plus"></i></button>
 					</div>
 					<div class="form-floating mt-3 col-12">
-						<textarea name="body" class="form-control" placeholder="Leave a comment here" id="floatingTextarea" style="resize: none; height: 100px; font-size: 1.10rem;"></textarea>
+						<textarea name="body" class="form-control" placeholder="Leave a comment here" id="floatingTextarea" style="resize: none; height: 100px;"></textarea>
 						<label for="floatingTextarea">Task</label>
 					</div>
 				</form>
 			</div>
 		</div>
-		<div class="card col-12 col-lg-8">
-			<div class="card-header d-flex justify-content-between align-items-center">
-				<div>
-					11/02/2002 - Progress 
+		{% for task in tasks %}
+			<div class="card col-12 col-lg-8">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<div>
+						{{ task.created_at }} 
+					</div>
+					<a href="#" class="btn btn-danger"><i data-feather="trash"></i></a>
 				</div>
-				<a href="#" class="btn btn-danger"><i data-feather="trash"></i></a>
-			</div>
-			<div class="card-body d-flex flex-column container">
-				<p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-				<div class="col-12 col-md-3 col-lg-2">
-					<a href="#" class="btn w-100 btn-success">Do</a>
+				<div class="card-body d-flex flex-column container">
+					<p class="card-text">{{ task.body }}</p>
+					<div class="col-12 col-md-3 col-lg-2">
+						<a href="#" class="btn w-100 btn-success">Do</a>
+					</div>
 				</div>
 			</div>
-		</div>
+		{% endfor %}
 	</section>
 {% endblock %}

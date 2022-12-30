@@ -5,6 +5,7 @@ from markupsafe import escape
 from datetime import datetime
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -100,7 +101,7 @@ def new_task():
             return redirect(url_for('show_tasks'))
 
         flash("Task has been created with success", category="success")
-        return render_template("tasks.html")
+        return redirect(url_for('show_tasks'))
 
 
             
@@ -108,7 +109,9 @@ def new_task():
 @app.route("/tasks", methods=["GET"])
 def show_tasks():
     if 'user_id' in session and session['user_id']:
-        return render_template("tasks.html")
+        get_user_tasks_query = db.select(Task).where(Task.user_id == session['user_id']).order_by(text("created_at desc"))
+        tasks = db.session.execute(get_user_tasks_query).scalars()
+        return render_template("tasks.html", tasks=tasks)
 
     flash('You must first log in to acess that page.', category="error")
     return redirect('/')
