@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, flash, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.wrappers import Response
 from markupsafe import escape
+from datetime import datetime
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
 
@@ -71,6 +72,38 @@ def new_user_session():
 
 
     return render_template("new_user_session.html")
+
+@app.route("/tasks/new", methods=["POST"])
+def new_task():
+    if request.method == "POST":
+        task_body = request.form.get("body")
+        current_time = datetime.now()
+
+        if "user_id" not in session or not session["user_id"]:
+            flash("You must first log in to acess that page", category="error")
+            return redirect("/")
+
+        if not task_body:
+            flash("You must fill the task with at least one character", category="error")
+            return redirect(url_for('show_tasks'))
+        
+        if len(task_body) > 255:
+            flash("The task must not has more than 255 characters", category="error")
+            return redirect(url_for('show_tasks'))
+
+        try:
+            current_task = Task(user_id=session['user_id'], body=task_body, created_at=current_time)
+            db.session.add(current_task)
+            db.session.commit()
+        except:
+            flash("Something went wrong.", category="error")
+            return redirect(url_for('show_tasks'))
+
+        flash("Task has been created with success", category="success")
+        return render_template("tasks.html")
+
+
+            
 
 @app.route("/tasks", methods=["GET"])
 def show_tasks():
