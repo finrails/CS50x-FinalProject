@@ -72,6 +72,14 @@ def new_user_session():
 
     return render_template("new_user_session.html")
 
+@app.route("/tasks", methods=["GET"])
+def show_tasks():
+    if 'user_id' in session and session['user_id']:
+        return render_template("tasks.html")
+
+    flash('You must first log in to acess that page.', category="error")
+    return redirect('/')
+
 @app.route("/users/new", methods=["GET", "POST"])
 def user_new():
     if 'user_id' in session:
