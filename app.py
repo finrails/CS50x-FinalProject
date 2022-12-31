@@ -118,15 +118,43 @@ def show_tasks():
 
 @app.route("/tasks/edit/<int:task_id>", methods=["GET", "POST"])
 def edit_task(task_id):
+    new_content = request.form.get("body")
+
     if not 'user_id' in session or not session['user_id']:
         flash("You must first log in to acess that content.", category="error")
-
-    if not task_id:
-        flash("You must input some task to complete this action.", category="error")
-        return redirect(url_for('show_tasks'))
+        return redirect(url_for("show_tasks"))
 
     if request.method == "POST":
-        return redirect("/")
+        if not new_content:
+            flash("You must fill the content field to edit the task", category="error")
+            return redirect(url_for("show_tasks"))
+
+        if not task_id:
+            flash("You must input some task to complete this action.", category="error")
+            return redirect(url_for('show_tasks'))
+
+        # If there's no task for task_id
+        try:
+            get_task_query = db.select(Task).where(Task.id == task_id)
+            task = db.session.execute(get_task_query).scalars().first()
+        except:
+            flash("That task doesn't exist", category="error")
+            return redirect(url_for("show_tasks"))
+
+        if task.user_id != session["user_id"]:
+            flash("You don't have permission to do this action", category="error")
+            return redirect(url_for("show_tasks"))
+
+        try:
+            task.body = new_content
+            db.session.add(task)
+            db.session.commit()
+        except:
+            flash("Something went wrong, try again", category="error")
+            return redirect(url_for("show_tasks"))
+
+        flash("The task has been edited with success", category="success")
+        return redirect(url_for("show_tasks"))
 
     else:
         return render_template("edit_task.html", task_id=task_id)
