@@ -12,4 +12,5 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey(User.id))
     body = db.Column(db.String(255), nullable=False)
+    checked = db.Column(db.String(3))
     created_at = db.Column(db.Text, nullable=False)

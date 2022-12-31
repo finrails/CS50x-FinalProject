@@ -93,7 +93,7 @@ def new_task():
             return redirect(url_for('show_tasks'))
 
         try:
-            current_task = Task(user_id=session['user_id'], body=task_body, created_at=current_time)
+            current_task = Task(user_id=session['user_id'], body=task_body, created_at=current_time, checked="no")
             db.session.add(current_task)
             db.session.commit()
         except:
@@ -103,8 +103,39 @@ def new_task():
         flash("Task has been created with success", category="success")
         return redirect(url_for('show_tasks'))
 
+@app.route("/tasks/do/<int:task_id>", methods=["POST"])
+def complete_task(task_id):
+    if request.method == "POST":
+        if not 'user_id' in session and not session['user_id']:
+            flash("You don't have permission to do this action", category="error")
+            redirect(url_for("/"))
 
-            
+        get_task_query = db.select(Task).where(Task.id == task_id)
+
+        try:
+            task = db.session.execute(get_task_query).scalars().first()
+        except:
+            flash("Something went wrong, try again", category="error")
+            redirect(url_for("show_tasks"))
+
+        print(f"{task.id} {session['user_id']}")
+        if task.user_id != session["user_id"]:
+            flash("You don't have permission to do this action", category="error")
+            return redirect(url_for("show_tasks"))
+
+        try:
+            if task.checked == "no":
+                task.checked = "yes"
+            else:
+                task.checked = "no"
+            db.session.add(task)
+            db.session.commit()
+        except:
+            flash("Something went wrong, try again", category="error")
+            redirect(url_for("show_tasks"))
+
+        flash("Task has been completed with success", category="success")
+        return redirect(url_for("show_tasks"))
 
 @app.route("/tasks/", methods=["GET", "DELETE"])
 def show_tasks():
