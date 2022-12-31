@@ -172,6 +172,10 @@ def edit_task(task_id):
             flash("That task doesn't exist", category="error")
             return redirect(url_for("show_tasks"))
 
+        if task.checked == "yes":
+            flash("It's impossible to edit a task that already has been completed", category="error")
+            return redirect(url_for("show_tasks"))
+
         if task.user_id != session["user_id"]:
             flash("You don't have permission to do this action", category="error")
             return redirect(url_for("show_tasks"))
