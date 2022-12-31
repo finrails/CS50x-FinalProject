@@ -62,6 +62,7 @@
 			{% endfor %}
 		{% endwith %}
 		{% block content %}{% endblock %}
+		<script src="{{ url_for('static', filename='script.js') }}"></script>
 		<script>feather.replace()</script>
   </body>
 </html>

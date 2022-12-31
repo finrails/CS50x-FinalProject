@@ -106,7 +106,7 @@ def new_task():
 
             
 
-@app.route("/tasks", methods=["GET"])
+@app.route("/tasks/", methods=["GET", "DELETE"])
 def show_tasks():
     if 'user_id' in session and session['user_id']:
         get_user_tasks_query = db.select(Task).where(Task.user_id == session['user_id']).order_by(text("created_at desc"))
@@ -114,7 +114,52 @@ def show_tasks():
         return render_template("tasks.html", tasks=tasks)
 
     flash('You must first log in to acess that page.', category="error")
-    return redirect('/')
+    return redirect(url_for('index'))
+
+@app.route("/tasks/edit/<int:task_id>", methods=["GET", "POST"])
+def edit_task(task_id):
+    if not 'user_id' in session or not session['user_id']:
+        flash("You must first log in to acess that content.", category="error")
+
+    if not task_id:
+        flash("You must input some task to complete this action.", category="error")
+        return redirect(url_for('show_tasks'))
+
+    if request.method == "POST":
+        return redirect("/")
+
+    else:
+        return render_template("edit_task.html", task_id=task_id)
+
+
+@app.route("/tasks/<int:task_id>", methods=["POST", "DELETE"])
+def destroy_task(task_id):
+    if not task_id:
+        flash("You must input some task to complete this action.", category="error")
+        return redirect(url_for('show_tasks'))
+
+    if 'user_id' in session and session['user_id']:
+        get_task_query = db.select(Task).where(Task.id == task_id)
+        
+        try:
+            task = db.session.execute(get_task_query).scalars().first()
+        except:
+            flash("This task doesn't exist.", category="error")
+            return redirect(url_for('show_tasks'))
+
+        if task.user_id != session['user_id']:
+            flash("You don't have the rights to destroy this task.", category="error")
+            return redirect(url_for('show_tasks'))
+
+        try:
+            db.session.delete(task)
+            db.session.commit()
+        except:
+            flash("Something went really wrong, try it again", category="error")
+            return redirect(url_for('show_tasks'))
+
+        flash("The task has been destroyed with success", category="success")
+        return redirect(url_for('show_tasks'))
 
 @app.route("/users/new", methods=["GET", "POST"])
 def user_new():
