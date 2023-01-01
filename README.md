@@ -20,3 +20,13 @@ To communicate with the database i've choose to use the SQLAlchemy with a Wrappe
 Oh, we're using Flask, so it uses Jinja2 to generate our HTML. Jinja2 is a template engine, it basically generates our HTML dynamically. Yes, it is it, a program that we ask for a HTML page, and it cast it to us.
 
 Oh i almost forgot, i also programmed some flash messages. flash is a session that persists among user requests, and can be fetched just one time, after that we can't acess it again, it is really good to render flash messages.
+
+Ok, lets describe some files:
+
+- app.py: The file where all things happens, it is the angular stone, it call jinja2 to generate HTML, check for permission, do redirects, call for models, call for sqlalchemy to make query, and cast it to WSGI.
+
+- models.py: where the sqlalchemy models live in, a model is just a Python object mapped to a table in the database, the sqlalchemy handle the hardwork, we just need to declare things to use in the future.
+
+- static: a directory where we store our files which will not me generated dynamically, css, maybe some html static page, and etc.
+
+- templates: here goes all templates that jinja will use to dynamically generate HTML pages, to cast it back to us in app.py.
